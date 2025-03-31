@@ -1,0 +1,94 @@
+---
+title: My dynamic report
+output: html_fragment
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE, error=FALSE)
+
+```
+
+```{css}
+body {
+  background-color: #252323;
+  color: #E1E5EE;
+  text-align: center;
+}
+```
+
+## Trends in Youtube Ads 
+
+```{r}
+library(tidyverse)
+logged_data <- read_csv("https://docs.google.com/spreadsheets/d/e/2PACX-1vQKP_gmNNUhDcvn27N7IrzSgdYTi8ys5PxQ1yukWUj956tA9nkB4u0dqrqjIlN9ms2Nh5MdMoHICoXX/pub?gid=638667384&single=true&output=csv")
+latest_data <- logged_data %>%
+  rename(form_submission_time = 1,
+         ad_type = 2,
+         relevant = 3,
+         seen_before = 4,
+         length = 5,
+         time_ad_received = 6) 
+
+type_bar <- latest_data %>%
+  ggplot() +
+  geom_bar(aes(y = ad_type)) +
+  labs(title = "Types of ads received on youtube", #title for the graph 
+       subtitle = "Which category sends out the most advertisements?", #subtitle to show what we want out of the information
+       caption = "Source: Survey", #where we got the information from
+       y = "Type of ad", #laying out the types of ads on the y axis
+       x = "Amount received") #counting how many ads have been received of each type on the x axis
+
+type_bar
+```
+
+This graph shows the different types of advertisements that are received on Youtube. Using a bar graph allows us to compare the frequency of the different category of ads.
+
+```{r}
+viewed_bar <- latest_data %>%
+  ggplot() + 
+  geom_bar(aes(y = seen_before)) +
+  labs(title = "Ad seen before", #title for the graph
+       caption = "Source: survey", #show where the information came from
+       x = "Amount", #amount of ads on x axis
+       y = "Answer") #answer of if the ad has been seen or not on y axis
+
+viewed_bar
+```
+
+This graph tells us if a user has seen the ad received already.
+
+```{r}
+library(magick)
+angelbay <- image_read("https://github.com/bliub0665/stats220/blob/main/angelbay.png?raw=true") %>%
+  image_resize("1000x500") #resize and read image being used
+bluebird <- image_read("https://github.com/bliub0665/stats220/blob/main/bluebird.png?raw=true") %>%
+  image_resize("1000x500") #resize and read image being used
+burgerking <- image_read("https://github.com/bliub0665/stats220/blob/main/burgerking.png?raw=true") %>%
+  image_resize("1000x500") #resize and read image being used
+contact <- image_read("https://github.com/bliub0665/stats220/blob/main/contact.png?raw=true") %>%
+  image_resize("1000x500") #resize and read image being used
+disneyplus <- image_read("https://github.com/bliub0665/stats220/blob/main/disneyplus.png?raw=true") %>%
+  image_resize("1000x500") #resize and read image being used
+mcdonalds <- image_read("https://github.com/bliub0665/stats220/blob/main/mcdonalds.png?raw=true") %>%
+  image_resize("1000x500") #resize and read image being used
+smokefree <- image_read("https://github.com/bliub0665/stats220/blob/main/smokefree.png?raw=true") %>%
+  image_resize("1000x500") #resize and read image being used
+woolworth <- image_read("https://github.com/bliub0665/stats220/blob/main/woolworth.png?raw=true") %>%
+  image_resize("1000x500") #resize and read image being used
+
+frames <- c(angelbay, bluebird, burgerking, contact, disneyplus, mcdonalds, smokefree, woolworth) #create vector with all frames
+animation <- image_animate(frames, fps = 1) #animating by using the vectors
+image_write(animation, "many_ads.gif") #save animation as gif
+```
+
+![](many_ads.gif)
+
+```{r}
+sum_adlength <- sum(latest_data$length, na.rm = TRUE) #find sum of all the ad lengths
+form_submissions <- nrow(latest_data) #get the amount of form submissions
+mean_adlength <- (sum_adlength / form_submissions) #find the mean time for an ad
+median_adlength <- median(latest_data$length, na.rm = TRUE) #find the median of the ad lengths
+
+paste("The average length of the ads that were observed in the survey was", mean_adlength, "seconds, and the median length is", median_adlength, "seconds.")
+```
+
